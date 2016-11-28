@@ -1,0 +1,32 @@
+version: '2'
+services:
+
+  # Cacti
+  cacti:
+    build: ./build/cacti
+#    volumes:
+#      - ${COMPOSE_DOCKER_CONFIG}/docker-graylog2-standalone/graylog/config:/etc/graylog/server
+    environment:
+      CACTI_DL_FILE: "cacti-0.8.8h.tar.gz"
+      SPINE_DL_FILE: "cacti-spine-0.8.8h.tar.gz"
+    links:
+      - "mysql:mysql"
+    ports:
+      - "443:443"
+      - "80:80"
+    networks:
+      - main
+
+  # MYSQL
+  mysql:
+    image: mysql/mysql-server
+    environment:
+      MYSQL_ROOT_PASSWORD: cactipw!
+      MYSQL_DATABASE: cacti
+    volumes:
+      - ${COMPOSE_DOCKER_DATA}/${COMPOSE_PROJECT_NAME}/mysql:/var/lib/mysql
+    networks:
+      - main
+
+networks:
+  main:
