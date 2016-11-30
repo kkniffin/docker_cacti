@@ -4,25 +4,42 @@ services:
   # Cacti
   cacti:
     build: ./build/cacti
-#    volumes:
-#      - ${COMPOSE_DOCKER_CONFIG}/docker-graylog2-standalone/graylog/config:/etc/graylog/server
     environment:
       CACTI_DL_FILE: "cacti-0.8.8h.tar.gz"
       SPINE_DL_FILE: "cacti-spine-0.8.8h.tar.gz"
+      CACTI_HOSTNAME: ${COMPOSE_CACTI_HOSTNAME}
+      CACTI_MAILHOST: ${COMPOSE_CACTI_MAILHOST}
+      CACTI_MYSQL_USERNAME: ${COMPOSE_CACTI_MYSQL_USERNAME}
+      CACTI_MYSQL_PASSWORD: ${COMPOSE_CACTI_MYSQL_PASSWORD}
+      CACTI_MYSQL_HOST: ${COMPOSE_CACTI_MYSQL_HOST}
+      CACTI_MYSQL_DATABASE: ${COMPOSE_CACTI_MYSQL_DATABASE}
     links:
       - "mysql:mysql"
+    extra_hosts:
+      - "${COMPOSE_CACTI_HOSTNAME}:127.0.0.1"
     ports:
-      - "443:443"
-      - "80:80"
+      - "4443:443"
     networks:
       - main
 
   # MYSQL
   mysql:
-    image: mysql/mysql-server
+    build: ./build/mysql
     environment:
-      MYSQL_ROOT_PASSWORD: cactipw!
-      MYSQL_DATABASE: cacti
+      MYSQL_USER: ${COMPOSE_CACTI_MYSQL_USERNAME}
+      MYSQL_PASSWORD: ${COMPOSE_CACTI_MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: "test"
+      MYSQL_DATABASE: ${COMPOSE_CACTI_MYSQL_DATABASE}
+      MYCNF_MAX_HEAP_TABLE_SIZE: ${COMPOSE_MYSQL_MEM10}
+      MYCNF_TMP_TABLE_SIZE: 64M
+      MYCNF_JOIN_BUFFER_SIZE: 64M
+      MYCNF_INNODB_BUFFER_POOL_SIZE: ${COMPOSE_MYSQL_MEM25}
+      MYCNF_INNODB_DOUBLEWRITE: "OFF"
+      MYCNF_INNODB_ADDITIONAL_MEM_POOL_SIZE: 80M
+      MYCNF_INNODB_FLUSH_LOG_AT_TIMEOUT: 3
+      MYCNF_INNODB_READ_IO_THREADS: 32
+      MYCNF_INNODB_WRITE_IO_THREADS: 16
+      MYCNF_USER: mysql
     volumes:
       - ${COMPOSE_DOCKER_DATA}/${COMPOSE_PROJECT_NAME}/mysql:/var/lib/mysql
     networks:

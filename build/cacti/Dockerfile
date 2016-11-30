@@ -1,18 +1,24 @@
 FROM phusion/baseimage:latest
 
+# Set Variables
 ENV DEBIAN_FRONTEND noninteractive
 ENV CACTI_DL_FILE "cacti-0.8.8h.tar.gz"
 ENV SPINE_DL_FILE "cacti-spine-0.8.8h.tar.gz"
 ENV CACTI_MYSQL_USERNAME "root"
 ENV CACTI_MYSQL_PASSWORD "cactipw!"
-ENV CACTI_MYSQL_HOST "localhost"
+ENV CACTI_MYSQL_HOST "mysql"
 ENV CACTI_MYSQL_DATABASE "cacti"
+ENV CACTI_HOSTNAME 'localhost'
+ENV CACTI_MAILHOST 'mail.changeme.com'
 
+# Enable Repositories and Upgrade
 RUN apt-add-repository multiverse\
     && apt-get -qq update \
     && apt-get -y upgrade -o Dpkg::Options::="--force-confold" \
-    && apt-get -y dist-upgrade \
-    && apt-get install -y curl \
+    && apt-get -y dist-upgrade
+
+# Install Required Packages
+RUN apt-get install -y curl \
     ntp \
     ntpdate \
     tzdata \
@@ -26,17 +32,29 @@ RUN apt-add-repository multiverse\
     libtool \
     libmysqlclient-dev \
     libsnmp-dev \
-    unzip
+    unzip \
+    ssmtp \
+    php \
+    php-mysql \
+    php-cli \
+    libapache2-mod-php \
+    php-ldap \
+    php-gd \
+    php-snmp \
+    libphp-adodb \
+    git \
+    mysql-client \
+    php-xml \
+    php-gmp \
+    php-mbstring \
+    snmp
 
 # Install Cacti
-WORKDIR /usr/local/src
-RUN wget http://www.cacti.net/downloads/${CACTI_DL_FILE} \
-    && tar zxvf ${CACTI_DL_FILE} \
-    && rm ${CACTI_DL_FILE} \
-    && mv cacti* /opt/cacti \
-    && chown -R 664 /opt/cacti/log \
-    && chown -R www-data.www-data /opt/cacti/log \
-    && echo '*/5 * * * * root php /opt/cacti/poller.php > /dev/null 2>&1' > /etc/cron.d/cacti
+WORKDIR /opt
+RUN git clone https://github.com/Cacti/cacti.git \
+    && echo '*/5 * * * * root php /opt/cacti/poller.php > /dev/null 2>&1' > /etc/cron.d/cacti \
+    && ln -s /opt/cacti /var/www/html/cacti \
+    && cp /opt/cacti/include/config.php.dist /opt/cacti/include/config.php
 
 # Install Spine
 WORKDIR /usr/local/src
@@ -48,11 +66,7 @@ RUN wget http://www.cacti.net/downloads/spine/${SPINE_DL_FILE} \
     LDFLAGS="-L/usr/lib -L/usr/lib/x86_64-linux-gnu/" ./configure --prefix=/usr --sysconfdir=/etc \
     && make \
     && make install \
-    && cp /etc/spine.conf.dist /etc/spine.conf \
-    && sed -i "s/^DB_Pass.*/DB_Pass\t\t${CACTI_MYSQL_PASSWORD}/" /etc/spine.conf \
-    && sed -i "s/^DB_User.*/DB_User\t\t${CACTI_MYSQL_USERNAME}/" /etc/spine.conf \
-    && sed -i "s/^DB_Host.*/DB_Host\t\t${CACTI_MYSQL_HOST}/" /etc/spine.conf \
-    && sed -i "s/^DB_Database.*/DB_Database\t\t${CACTI_MYSQL_DATABASE}/" /etc/spine.conf
+    && cp /etc/spine.conf.dist /etc/spine.conf
 
 # Setup Apache
 RUN a2enmod ssl \
@@ -61,7 +75,11 @@ RUN a2enmod ssl \
     && ln -s /opt/cacti /var/www/html/cacti \
     && rm -rf /var/www/html/index.html \
     && mkdir -p /etc/apache2/ssl \
-    && make-ssl-cert /usr/share/ssl-cert/ssleay.cnf /etc/apache2/ssl/apache.pem \
-    && sed -i '/<Directory \/usr\/lib\/cgi-bin>/,/<\/Directory>/d' /etc/apache2/sites-enabled/default-ssl.conf
+    && cp /usr/share/ssl-cert/ssleay.cnf /usr/local/src \
+    && sed -i 's/^default_bits.*/default_bits\t\t= 4096/' /usr/local/src/ssleay.cnf \
+    && sed -i "s/^commonName.*/commonName\t\t= ${CACTI_HOSTNAME}/" /usr/local/src/ssleay.cnf \
+    && make-ssl-cert /usr/local/src/ssleay.cnf /etc/ssl/certs/ssl-cert-snakeoil.pem --force-overwrite
 
+# Copy Startup Scripts to Run
 COPY ./my_init.d/* /etc/my_init.d/
+COPY ./service/ /etc/service/
