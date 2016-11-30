@@ -54,7 +54,10 @@ WORKDIR /opt
 RUN git clone https://github.com/Cacti/cacti.git \
     && echo '*/5 * * * * root php /opt/cacti/poller.php > /dev/null 2>&1' > /etc/cron.d/cacti \
     && ln -s /opt/cacti /var/www/html/cacti \
-    && cp /opt/cacti/include/config.php.dist /opt/cacti/include/config.php
+    && cp /opt/cacti/include/config.php.dist /opt/cacti/include/config.php \
+    && chown www-data.www-data /opt/cacti/resource/snmp_queries \
+    && chown www-data.www-data /opt/cacti/resource/script_server \
+    && chown www-data.www-data /opt/cacti/resource/script_queries
 
 # Install Spine
 WORKDIR /usr/local/src
