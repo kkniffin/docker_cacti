@@ -9,13 +9,6 @@ if [ ! `whoami` == 'root' ]; then \
 	exit 0
 fi
 
-echo '############################################################'
-echo '############################################################'
-echo '################# RUNNING ##################################'
-echo `whoami`
-echo '############################################################'
-echo '############################################################'
-
 CONFIGFILE=/etc/mysql/conf.d/cacti.cnf # Configuration File Location
 ENV_VARIABLEPREFIX=MYCNF_ # Ex: CONFIGFILE_ anything starting with CONFIGFILE_ will be processed
 SETTINGS_START_SEPERATOR='#<-- START SETTINGS -->' # Starting Seperator for identifying custom config

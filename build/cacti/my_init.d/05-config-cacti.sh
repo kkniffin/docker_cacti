@@ -6,13 +6,25 @@ echo "###########################"
 echo "#### Configuring Cacti ####"
 echo "###########################"
 
-#sed -i "s/\(\/\/\)\{0,2\}\$database_type .*/\$database_type = \"mysqli\";/" ${CACTI_CONFIG_FILE}
+# Configure Primary Poller Settings
 sed -i "s/\(\/\/\)\{0,2\}\$database_default.*/\$database_default = \"${CACTI_MYSQL_DATABASE}\";/" ${CACTI_CONFIG_FILE}
 sed -i "s/\(\/\/\)\{0,2\}\$database_hostname.*/\$database_hostname = \"${CACTI_MYSQL_HOST}\";/" ${CACTI_CONFIG_FILE}
 sed -i "s/\(\/\/\)\{0,2\}\$database_username.*/\$database_username = \"${CACTI_MYSQL_USERNAME}\";/" ${CACTI_CONFIG_FILE}
 sed -i "s/\(\/\/\)\{0,2\}\$database_password.*/\$database_password = \"${CACTI_MYSQL_PASSWORD}\";/" ${CACTI_CONFIG_FILE}
+
+# Configure Remote Poller Settings
+sed -i "s/\(\/\/\)\{0,2\}\$rdatabase_default.*/\$rdatabase_default = \"${CACTI_MYSQL_DATABASE}\";/" ${CACTI_CONFIG_FILE}
+sed -i "s/\(\/\/\)\{0,2\}\$rdatabase_hostname.*/\$rdatabase_hostname = \"${CACTI_MYSQL_HOST}\";/" ${CACTI_CONFIG_FILE}
+sed -i "s/\(\/\/\)\{0,2\}\$rdatabase_username.*/\$rdatabase_username = \"${CACTI_MYSQL_USERNAME}\";/" ${CACTI_CONFIG_FILE}
+sed -i "s/\(\/\/\)\{0,2\}\$rdatabase_password.*/\$rdatabase_password = \"${CACTI_MYSQL_PASSWORD}\";/" ${CACTI_CONFIG_FILE}
+
+# Configure General Settings
 sed -i "s/\(\/\/\)\{0,2\}\$url_path/\$url_path/" ${CACTI_CONFIG_FILE}
 sed -i "s/\(\/\/\)\{0,2\}\$cacti_session_name/\$cacti_session_name/" ${CACTI_CONFIG_FILE}
+
+#############################################
+#### Create Database Structure for Cacti ####
+#############################################
 
 # Check if SQL Server is Up
 until mysql -u${CACTI_MYSQL_USERNAME} -s -p${CACTI_MYSQL_PASSWORD} -h${CACTI_MYSQL_HOST} -e "show databases" --silent 2>/dev/null; do

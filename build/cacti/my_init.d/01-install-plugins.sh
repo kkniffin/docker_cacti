@@ -9,22 +9,44 @@ echo "#############################################"
 
 # Install Weathermap
 if [ ! -d ${CACTI_PLUGINS_DIR}/weathermap ]; then
-	cd /usr/local/src
-	curl -s -n https://api.github.com/repos/howardjones/network-weathermap/releases/latest | grep browser_download_url | grep .zip | cut -d'"' -f4 | wget -i - -O php-weathermap.zip
-	unzip php-weathermap.zip
-	mv weathermap /opt/cacti/plugins/
-	if [ ! -d ${CACTI_PLUGINS_DIR}/weathermap/output ]; then
-		mkdir ${CACTI_PLUGINS_DIR}/weathermap/output
-	fi
-	rm -f weathermap*
+        cd /usr/local/src
+        git clone -b database-refactor https://github.com/howardjones/network-weathermap.git
+        mv network-weathermap ${CACTI_PLUGINS_DIR}/weathermap
+        if [ ! -d ${CACTI_PLUGINS_DIR}/weathermap/output ]; then
+                mkdir ${CACTI_PLUGINS_DIR}/weathermap/output
+        fi
+        rm -rf network-weathermap*
+fi
+
+# Plugin THOLD
+if [ ! -d ${CACTI_PLUGINS_DIR}/thold ]; then
+        cd /usr/local/src
+        git clone https://github.com/Cacti/plugin_thold
+        mv plugin_thold ${CACTI_PLUGINS_DIR}/thold
+        rm -rf plugin_thold*
+fi
+
+# Plugin Maint
+if [ ! -d ${CACTI_PLUGINS_DIR}/maint ]; then
+        cd /usr/local/src
+        git clone https://github.com/Cacti/plugin_maint
+        mv plugin_maint ${CACTI_PLUGINS_DIR}/maint
+        rm -rf plugin_maint*
 fi
 
 
-if [ ! -d ${CACTI_PLUGINS_DIR}/autom8 ]; then
-	# Install Autom8
-	cd /usr/local/src
-	wget http://docs.cacti.net/_media/plugin:autom8_v031.tgz -O autom8.tgz
-	tar zxvf autom8.tgz
-	mv autom8 /opt/cacti/plugins/
-	rm -rf autom8*
+# Plugin RouterConfigs
+if [ ! -d ${CACTI_PLUGINS_DIR}/routerconfigs ]; then
+        cd /usr/local/src
+        git clone https://github.com/Cacti/plugin_routerconfigs
+        mv plugin_routerconfigs ${CACTI_PLUGINS_DIR}/routerconfigs
+        rm -rf plugin_routerconfigs*
+fi
+
+# Plugin Monitor
+if [ ! -d ${CACTI_PLUGINS_DIR}/monitor ]; then
+        cd /usr/local/src
+        git clone https://github.com/Cacti/plugin_monitor
+        mv plugin_monitor ${CACTI_PLUGINS_DIR}/monitor
+        rm -rf plugin_monitor*
 fi

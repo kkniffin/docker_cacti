@@ -49,6 +49,8 @@ RUN apt-get install -y curl \
     php-mbstring \
     snmp
 
+RUN apt-get install -y help2man
+
 # Install Cacti
 WORKDIR /opt
 RUN git clone https://github.com/Cacti/cacti.git \
@@ -59,20 +61,23 @@ RUN git clone https://github.com/Cacti/cacti.git \
     && chown www-data.www-data /opt/cacti/resource/script_server \
     && chown www-data.www-data /opt/cacti/resource/script_queries
 
-# Install Spine
+# Install Spine Developer Version
 WORKDIR /usr/local/src
-RUN wget http://www.cacti.net/downloads/spine/${SPINE_DL_FILE} \
-    && tar zxvf ${SPINE_DL_FILE} \
-    && rm ${SPINE_DL_FILE} \
-    && cd cacti-spine* \
-    && ln -s /usr/lib/x86_64-linux-gnu/libmysqlclient.so /usr/lib/x86_64-linux-gnu/libmysqlclient_r.so; \
-    LDFLAGS="-L/usr/lib -L/usr/lib/x86_64-linux-gnu/" ./configure --prefix=/usr --sysconfdir=/etc \
+RUN git clone -b develop https://github.com/Cacti/spine.git \
+    && cd spine \
+    && ln -s /usr/lib/x86_64-linux-gnu/libmysqlclient.so /usr/lib/x86_64-linux-gnu/libmysqlclient_r.so \
+    && aclocal \
+    && libtoolize --force \
+    && autoheader \
+    && autoconf \
+    && automake --add-missing \
+    && LDFLAGS="-L/usr/lib -L/usr/lib/x86_64-linux-gnu/" ./configure --prefix=/usr --sysconfdir=/etc \
     && make \
     && make install \
     && cp /etc/spine.conf.dist /etc/spine.conf
 
 # Setup Apache
-RUN a2enmod ssl \
+RUN a2enmod ssl rewrite \
     && rm /etc/apache2/sites-enabled/* \
     && a2ensite default-ssl \
     && ln -s /opt/cacti /var/www/html/cacti \
