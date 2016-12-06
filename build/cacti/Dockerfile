@@ -2,8 +2,6 @@ FROM phusion/baseimage:latest
 
 # Set Variables
 ENV DEBIAN_FRONTEND noninteractive
-ENV CACTI_DL_FILE "cacti-0.8.8h.tar.gz"
-ENV SPINE_DL_FILE "cacti-spine-0.8.8h.tar.gz"
 ENV CACTI_MYSQL_USERNAME "root"
 ENV CACTI_MYSQL_PASSWORD "cactipw!"
 ENV CACTI_MYSQL_HOST "mysql"

@@ -5,8 +5,6 @@ services:
   cacti:
     build: ./build/cacti
     environment:
-      CACTI_DL_FILE: "cacti-0.8.8h.tar.gz"
-      SPINE_DL_FILE: "cacti-spine-0.8.8h.tar.gz"
       CACTI_HOSTNAME: ${COMPOSE_CACTI_HOSTNAME}
       CACTI_MAILHOST: ${COMPOSE_CACTI_MAILHOST}
       CACTI_MYSQL_USERNAME: ${COMPOSE_CACTI_MYSQL_USERNAME}
