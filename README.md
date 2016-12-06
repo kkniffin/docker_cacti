@@ -1,4 +1,13 @@
-# docker_cacti
+# Cacti
+> Default Login: admin/admin
 
+###### Includes
+- GitHub Cacti with Spine Developer Version
+- Apache with SSL
 
-default login admin/admin
+###### Plugins
+- Weathermap database-refactor
+- thold
+- maint
+- routerconfigs
+- monitor
