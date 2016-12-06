@@ -1,4 +1,4 @@
-# Cacti
+# Cacti new version 1.0 Github
 > Default Login: admin/admin
 
 ###### Includes
@@ -6,7 +6,7 @@
 - Apache with SSL
 
 ###### Plugins
-- Weathermap database-refactor
+- Weathermap database-refactor version
 - thold
 - maint
 - routerconfigs
